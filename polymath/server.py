@@ -58,13 +58,23 @@ class Routes:
                pack (web.json_response): Pack url and its SHA1 hash
         """
         data = await request.post()
-        spigot_id = data["id"]
+        key_id = data["id"]
 
-        if spigot_id in []:
-            return web.json_response({"error": "This license has been disabled"})
+        key_filter_config = self.config['security']['key_filter']
+        key_filter_whitelist = key_filter_config['mode'] == 'whitelist'
+        key_filter = key_filter_config['keys']
+
+        if key_filter_whitelist:
+            if key_id not in key_filter:
+                logging.error("Rejecting Upload: "+key_id+" from "+Real_IP)
+                return web.json_response({"error": "This license is not valid."})
+        else:
+            if key_id in key_filter:
+                logging.error("Rejecting Upload: "+key_id+" from "+Real_IP)
+                return web.json_response({"error": "This license is not valid."})
 
         pack = data["pack"].file.read()
-        id_hash = self.packs.register(pack, spigot_id, Real_IP) # use the above header if behind e.x.: nginx
+        id_hash = self.packs.register(pack, key_id, Real_IP) # use the above header if behind e.x.: nginx
 
         return web.json_response(
             {

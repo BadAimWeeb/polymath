@@ -34,3 +34,9 @@ reject_download = false # same as above but for download.
 
 # Set known application user-agents, these are used as Regex to match more easily
 known_agents = { upload = ["Apache-HttpClient.*"], download = ["Minecraft Java.*"] }
+
+# Should we filter client by key?
+# Mode can be blacklist or whitelist
+# blacklist: only allow the keys in the list
+# whitelist: only allow the keys not in the list
+key_filter = { mode = "blacklist", keys = ["test"] }
